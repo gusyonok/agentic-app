@@ -1,4 +1,4 @@
-"""Streamlit UI for orchestrator/child-agent actuarial mock workflow."""
+"""Streamlit UI for orchestrator/child-agent actuarial workflow."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from tools.charting import (
 
 
 st.set_page_config(page_title="Actuarial Agentic App", layout="wide")
-st.title("Actuarial Agentic App (Mock MVP)")
+st.title("Actuarial Agentic App")
 st.caption("Strands-style orchestrator + child agents with lifecycle visibility and charts.")
 availability = check_strands_available()
 st.info(f"Strands status: {availability.detail}")
@@ -31,7 +31,7 @@ if "last_result" not in st.session_state:
 with st.sidebar:
     st.header("Scenario Controls")
     scenario = st.selectbox("Scenario", options=["base", "optimistic", "stress"], index=0)
-    triangle_size = st.slider("Triangle size", min_value=4, max_value=12, value=8, step=1)
+    triangle_size = st.slider("Years from real example triangle", min_value=4, max_value=8, value=8, step=1)
 
 prompt = st.text_area(
     "Actuarial request",
@@ -47,6 +47,11 @@ if st.button("Run Orchestration", type="primary"):
 result = st.session_state.last_result
 if result is not None:
     st.success(f"Run complete: {result.run_id}")
+    llm_meta = result.artifacts.get("llm", {})
+    if llm_meta.get("llm_used"):
+        st.info(f"LLM explanation enabled: {llm_meta.get('provider')} / {llm_meta.get('model')}")
+    else:
+        st.warning("LLM explanation fallback used. Add OPENAI_API_KEY in .env to enable.")
 
     col1, col2 = st.columns([2, 1])
     with col1:

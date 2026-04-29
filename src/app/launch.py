@@ -15,6 +15,9 @@ def main() -> None:
     os.environ.setdefault("STREAMLIT_HOME", str(streamlit_home))
     os.environ.setdefault("STREAMLIT_BROWSER_GATHER_USAGE_STATS", "false")
     os.environ.setdefault("STREAMLIT_SERVER_FILE_WATCHER_TYPE", "poll")
+    os.environ["PYTHONPATH"] = (
+        f"{root / 'src'}:{os.environ.get('PYTHONPATH', '')}".rstrip(":")
+    )
 
     cmd = ["streamlit", "run", "src/app/main.py", "--server.port", "8501", "--server.headless", "true"]
     subprocess.run(cmd, check=True, cwd=root)

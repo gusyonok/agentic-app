@@ -7,6 +7,7 @@ cd "${ROOT_DIR}"
 export STREAMLIT_HOME="${ROOT_DIR}/.streamlit_runtime"
 export STREAMLIT_BROWSER_GATHER_USAGE_STATS="false"
 export STREAMLIT_SERVER_FILE_WATCHER_TYPE="poll"
+export PYTHONPATH="${ROOT_DIR}/src:${PYTHONPATH:-}"
 
 mkdir -p "${STREAMLIT_HOME}"
 
@@ -14,12 +15,19 @@ PORT="${PORT:-8501}"
 
 if lsof -ti "tcp:${PORT}" >/dev/null 2>&1; then
   echo "Port ${PORT} is busy. Stopping existing process(es)..."
-  pids="$(lsof -ti "tcp:${PORT}" | tr '\n' ' ')"
+  pids="$(lsof -ti "tcp:${PORT}" | sort -u | tr '\n' ' ')"
   # Try graceful shutdown first, then force kill if needed.
   kill ${pids} >/dev/null 2>&1 || true
-  sleep 1
+  for _ in 1 2 3; do
+    sleep 1
+    if ! lsof -ti "tcp:${PORT}" >/dev/null 2>&1; then
+      break
+    fi
+  done
   if lsof -ti "tcp:${PORT}" >/dev/null 2>&1; then
+    pids="$(lsof -ti "tcp:${PORT}" | sort -u | tr '\n' ' ')"
     kill -9 ${pids} >/dev/null 2>&1 || true
+    sleep 1
   fi
 fi
 

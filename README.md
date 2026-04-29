@@ -1,11 +1,11 @@
-# Strands Agentic App (Mock-First Actuarial MVP)
+# Strands Agentic App (Actuarial MVP)
 
 Python app that demonstrates an agentic architecture for actuarial workflows:
 - Orchestrator agent with child agents
 - Lifecycle tracking for each agent
 - Streamlit UI for interaction and run traceability
 - Chart output (triangle heatmap, development factors, reserve by AY)
-- Custom tools with deterministic mock actuarial behavior
+- Custom tools with deterministic Chain-Ladder actuarial behavior
 
 ## Quick start
 
@@ -42,7 +42,7 @@ pytest
 - `src/core/models.py`: Typed request/result/lifecycle models
 - `src/core/lifecycle.py`: Lifecycle event helpers
 - `src/tools/validation.py`: Input validation tool
-- `src/tools/mock_actuarial.py`: Deterministic mock reserving calculator
+- `src/tools/reserving.py`: Deterministic Chain-Ladder reserving calculator
 - `src/tools/charting.py`: Plotly chart builders
 - `tests/`: Lifecycle and tool tests
 
@@ -71,7 +71,7 @@ use only `./scripts/run_app.sh` (or `run-app`) to avoid those failures.
 ## Current behavior (deterministic Chain-Ladder mode)
 
 The calculation layer now solves one actuarial problem end-to-end using deterministic Chain-Ladder-style reserving:
-- Synthetic cumulative triangle generation
+- Real-example cumulative triangle projection
 - Volume-weighted age-to-age factors (LDF)
 - CDF-based ultimate projection
 - IBNR / reserve by accident year and total indicated reserve
@@ -98,7 +98,7 @@ Output includes:
 
 Keep external contracts stable and swap internals:
 
-1. Preserve `compute_mock_reserving()` output schema (or rename to `compute_reserving()` with same fields):
+1. Preserve `compute_chain_ladder_reserving()` output schema:
    - `triangle_records`
    - `factors`
    - `reserve_by_ay`

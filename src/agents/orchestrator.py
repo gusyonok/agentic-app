@@ -96,7 +96,10 @@ class OrchestratorAgent:
                 "latest_by_ay": ctx.intermediate["calculation"]["latest_by_ay"],
                 "ibnr_by_ay": ctx.intermediate["calculation"]["ibnr_by_ay"],
             },
-            artifacts={"intermediate": ctx.intermediate},
+            artifacts={
+                "intermediate": ctx.intermediate,
+                "llm": ctx.intermediate["explanation"].get("llm_meta", {}),
+            },
         )
         mark_completed(ctx, self.name, "orchestration completed")
         result.traces = ctx.events
