@@ -28,8 +28,8 @@ class LifecycleEvent(BaseModel):
 
 class RunRequest(BaseModel):
     user_prompt: str
-    scenario: str = "base"
-    triangle_size: int = 8
+    simulations: int = 10000
+    triangle_records: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class ValidationReport(BaseModel):

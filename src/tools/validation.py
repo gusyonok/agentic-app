@@ -33,8 +33,8 @@ def validate_triangle_records(records: Iterable[dict]) -> ValidationReport:
             continue
         if row["value"] < 0:
             errors.append(f"Row {idx} has negative value.")
-        if row["development_period"] <= 0:
-            errors.append(f"Row {idx} has invalid development period.")
+        if row["development_period"] < 0:
+            errors.append(f"Row {idx} has invalid development period (must be >= 0).")
 
     seen_cells: set[tuple[int, int]] = set()
     by_ay: dict[int, dict[int, float]] = {}

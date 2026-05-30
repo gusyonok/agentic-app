@@ -15,6 +15,22 @@ from core.lifecycle import mark_completed, mark_failed, mark_running
 from core.models import AgentContext, RunRequest, RunResult
 
 
+def _ldf_table_rows(calculation: dict) -> list[dict[str, object]]:
+    factors = calculation["factors"]
+    diag = calculation.get("diagnostics") or {}
+    from_dev = diag.get("ldf_from_dev")
+    to_dev = diag.get("ldf_to_dev")
+    if from_dev and to_dev and len(from_dev) == len(factors) == len(to_dev):
+        return [
+            {"from_period": fr, "to_period": to, "ldf": v}
+            for fr, to, v in zip(from_dev, to_dev, factors)
+        ]
+    return [
+        {"from_period": i + 1, "to_period": i + 2, "ldf": v}
+        for i, v in enumerate(factors)
+    ]
+
+
 class OrchestratorAgent:
     name = "OrchestratorAgent"
 
@@ -68,10 +84,7 @@ class OrchestratorAgent:
                     {"accident_year": k, "reserve": v}
                     for k, v in ctx.intermediate["calculation"]["reserve_by_ay"].items()
                 ],
-                "ldf": [
-                    {"development_period": i + 1, "ldf": v}
-                    for i, v in enumerate(ctx.intermediate["calculation"]["factors"])
-                ],
+                "ldf": _ldf_table_rows(ctx.intermediate["calculation"]),
                 "cdf": [
                     {"development_period": i + 1, "cdf": v}
                     for i, v in enumerate(ctx.intermediate["calculation"]["cdf"])
@@ -85,6 +98,28 @@ class OrchestratorAgent:
                     }
                     for ay in ctx.intermediate["calculation"]["latest_by_ay"]
                 ],
+                "risk_metrics": [
+                    {
+                        "metric": key,
+                        "value": value,
+                    }
+                    for key, value in ctx.intermediate["calculation"]["risk_metrics"].items()
+                    if key
+                    not in {
+                        "simulated_ibnr",
+                        "stability_batch_vars",
+                        "mack_se_by_ay",
+                        "mack_process_variances",
+                        "default_probability_definition",
+                        "deficit_probability_definition",
+                    }
+                ],
+                "stability_batch_var995": [
+                    {"run": idx + 1, "var_995": value}
+                    for idx, value in enumerate(
+                        ctx.intermediate["calculation"]["risk_metrics"]["stability_batch_vars"]
+                    )
+                ],
                 "validation": [ctx.intermediate["data_prep"]["validation"]],
             },
             traces=ctx.events,
@@ -95,6 +130,10 @@ class OrchestratorAgent:
                 "ultimate_by_ay": ctx.intermediate["calculation"]["ultimate_by_ay"],
                 "latest_by_ay": ctx.intermediate["calculation"]["latest_by_ay"],
                 "ibnr_by_ay": ctx.intermediate["calculation"]["ibnr_by_ay"],
+                "simulated_ibnr": ctx.intermediate["calculation"]["risk_metrics"]["simulated_ibnr"],
+                "base_reserve": ctx.intermediate["calculation"]["risk_metrics"]["base_reserve"],
+                "var_995": ctx.intermediate["calculation"]["risk_metrics"]["var_995"],
+                "rm_required_005": ctx.intermediate["calculation"]["risk_metrics"]["rm_required_005"],
             },
             artifacts={
                 "intermediate": ctx.intermediate,

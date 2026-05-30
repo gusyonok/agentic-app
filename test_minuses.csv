@@ -1,0 +1,16 @@
+Policy_Year,Dev_Quarter,Incremental_Paid_UAH,Claim_Status,Region
+2020,0,5000,Closed,Kyiv
+2020,1,2000,Closed,Kyiv
+2020,2,-1500,Closed,Kyiv
+2020,3,100,Closed,Lviv
+2020,4,0,Closed,Lviv
+2021,0,5500,Closed,Kyiv
+2021,1,2200,Closed,Odesa
+2021,2,-1600,Open,Odesa
+2021,3,150,Open,Kyiv
+2022,0,6000,Closed,Lviv
+2022,1,2500,Open,Lviv
+2022,2,-1800,Open,Kyiv
+2023,0,5800,Open,Kyiv
+2023,1,2400,Open,Odesa
+2024,0,6200,Open,Kyiv
